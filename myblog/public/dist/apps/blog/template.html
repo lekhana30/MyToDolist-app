@@ -1,0 +1,25 @@
+<div id="blog-posts"></div><script type="text/template" id="tpl-blog"><div class="card">
+        <div class="post-card">
+            <div style="flex:2">
+                <a href="/post/<% slug %>">
+                    <img class="img-fluid card-img-top" src="<%{image}%>=s1024-c" alt="<% title %>">                
+                </a>
+            </div>
+            <div style="flex:3;display:flex;flex-direction:column">
+                <div class="card-body">
+                    <h5 class="card-title" style="line-height:1.5">
+                        <a href="/post/<% slug %>"><% title %></a>
+                    </h5>
+                    <p class="card-text">
+                        <a href="/post/<% slug %>"><% preview %></a>
+                    </p>
+                </div>
+                <div class="card-footer bg-light">
+                    <img style="width:24px;border-radius:50%" src="https://lh3.googleusercontent.com/CuEfj955nT_eoHDAgH7m70-IpC4jFnN4XElxLr66N7TB1f8xInOfMpYPiDlG7Oxlw9eSl8zGmRLGme2TIGsxYfg7=s48-c" />
+                    <small class="text-muted"> <%#author.username %> <% author.username %> <%/author.username %> <%^author.username %> Admin <%/author.username %> </small>
+                    <span class="mr-1 ml-1">&middot;</span>
+                    <small class="text-muted"><% dateString %></small>
+                </div>
+            </div>
+        </div>
+    </div></script><script type="text/javascript">!function(){console.log("RENDER BLOG UI");var t=window.__PRELOADED__,i=(t.site,t.posts),s=function(){var o="",s=$("#tpl-blog").html();i.forEach(function(t){o+=Mustache.render(s,t)}),$("#blog-posts").html(o)};null==i?($("#blog-posts").html('<div style="text-align:center"><img src="https://storage.turbo360.co/turbo-blog-ksq2wy/loading-spinner.gif" /></div>'),window.utils.getRequest("/api/post?limit=10",function(t,o){t||(window.__PRELOADED__.posts=o,i=o,s())})):s()}()</script>

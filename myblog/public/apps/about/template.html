@@ -1,0 +1,164 @@
+<div class="card user-card user-card-1">
+    <div class="card-header border-0 p-2 pb-0">
+        <div class="cover-img-block" style="max-height:320px;overflow:hidden">
+            <img id="site-banner" src="" alt="" class="img-fluid">
+        </div>
+    </div>
+    <div class="card-body pt-0 mb-4">
+        <div class="user-about-block text-center">
+            <div class="row align-items-end">
+                <div class="col">
+                    <img id="site-icon" class="img-radius img-fluid wid-80" src="" alt="{{global.title}}">
+                </div>
+            </div>
+        </div>
+        <div class="text-center">
+            <h3 id="site-name" class="mb-1 mt-3 text-capitalize"></h3>
+            <p id="site-category" class="mb-3 text-muted text-capitalize f-16"></p>
+            <p id="site-description" class="mb-1 f-18 mt-5"></p>
+        </div>
+
+        <div class="contain-card p-t-30 p-b-10 text-center">
+            <h4 class="mb-3" style="font-weight:200">Admins</h4>
+            <div id="site-admins"></div>
+        </div>
+
+        <hr class="wid-80 b-wid-3 my-5">
+        <div class="text-center">
+            <div class="votes-row">
+                <div>
+                    <h6 id="subscribers" class="mb-1">678</h6>
+                    <a href="#" id="about-btn-subscribe" class="badge badge-light-success mt-2 f-16">Subscribe<i class="fas fa-plus-circle ml-2"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+(function(){
+    var data = window.__PRELOADED__
+    var site = data.site
+
+    var reloadUI = function(){
+        $('#site-name').html(site.name)
+        $('#site-category').html(site.category)
+        $('#site-banner').attr('src', site.image+'=s1024')
+        $('#site-icon').attr('src', site.image+'=s160-c')
+        $('#site-description').html(site.description)
+
+        var numSubscribers = (site.numSubscribers.length > 10) ? site.numSubscribers : ''
+        $('#subscribers').html(numSubscribers)
+
+        if (window.__PRELOADED__.userSubscribed == true){
+            $('#about-btn-subscribe').removeClass('badge-light-success')
+            $('#about-btn-subscribe').addClass('badge-light')
+            $('#about-btn-subscribe').html('Subscribed<i class="fas fa-check-circle ml-2"></i>')
+        }
+
+        var admins = [site.profile]
+        admins = admins.concat(site.collaborators)
+
+        var adminsHtml = ''
+        admins.forEach(function(profile){
+            adminsHtml += '<a href="#">'
+            adminsHtml += '<img style="border-radius:4px" src="'+profile.image+'=s100-c" alt="" class="wid-50 mr-2" />'
+            adminsHtml += '</a>'
+        })
+
+        $('#site-admins').html(adminsHtml)
+    }
+    
+    $('#about-btn-subscribe').click(function(event){
+        if (event)
+            event.preventDefault()
+
+        if (data.vertexUser==null){
+            alert('Please login or register to subscribe to this site.')
+            return
+        }
+        
+        var subscriber = {
+            site: site.id,
+            referrer: window.location.href,
+            profile: JSON.stringify({
+                id: data.vertexUser.id,
+                slug: data.vertexUser.slug,
+                image: data.vertexUser.image,
+                username: data.vertexUser.username
+            })
+        }
+
+        console.log('subscribe: ' + JSON.stringify(subscriber))
+
+        var xhr = new XMLHttpRequest()
+        // xhr.open('POST', 'https://www.vertex360.co/account/subscriber')
+        xhr.open('POST', 'https://www.vertex360.co/api/subscriber')
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                try {
+                    var data = JSON.parse(xhr.responseText)
+                    // console.log('DATA == ' + JSON.stringify(data))
+                    if (data.confirmation != 'success'){
+                        throw new Error(data.message)
+                        return
+                    }
+
+                    window.__PRELOADED__.userSubscribed = true
+                    reloadUI()
+                    alert('Thanks For Subscribing!')
+                }
+                catch (err){
+                    console.log('PARSE ERR: ' + err)
+                    alert('Error - ' + err.message)
+                }
+            }
+        }
+
+        xhr.send(JSON.stringify(subscriber))
+    })
+
+    if (site.description != null){
+        reloadUI()
+        return
+    }
+
+    // fetch full site data:
+    window.utils.getRequest('https://www.vertex360.co/api/site/'+site.id, function(err, payload){
+        if (err){
+            console.log('FETCH SITE ERR: ' + err)
+            return
+        }
+
+        // console.log('SITE FETCHED: ' + JSON.stringify(payload))
+        site = payload
+        window.__PRELOADED__.site = payload
+        if (data.vertexUser == null){
+            reloadUI()
+            return
+        }
+
+        // check if current user subscribed to site:
+        window.utils.getRequest('https://www.vertex360.co/api/subscriber?site='+site.id+'&profile.id='+data.vertexUser.id, function(err2, payload2){
+            if (err2){
+                // console.log('FETCH SUBSCRIBER ERR: ' + err)
+                return
+            }
+
+            // user not subscribed:
+            if (payload2.length == 0){
+                console.log('PROFILE NOT SUBSCRIBED: ' + JSON.stringify(payload2))
+                reloadUI()
+                return
+            }
+            
+            console.log('PROFILE SUBSCRIBED: ' + JSON.stringify(payload2))
+            window.__PRELOADED__.userSubscribed = true
+            reloadUI()
+        })
+    })
+})()
+</script>

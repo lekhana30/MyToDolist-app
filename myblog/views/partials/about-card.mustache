@@ -1,0 +1,24 @@
+<div class="card card-contact-box">
+    <div class="card-body ">
+        <div class="card-contain text-center">
+            <img style="max-width:100px;border:1px solid #ededed" src="{{{global.img_icon}}}=s512-c" alt="{{global.title}}" class="img-radius m-t-20">
+            <h6 class="f-w-400 f-20 p-b-5 m-0 p-t-15 ">{{global.title}}</h6>
+            <a class="text-capitalize" href="#">{{global.category}}</a>
+            <p class="text-muted p-b-25 m-0 pt-4 mt-4">
+                This website is hosted <em>free</em> on <a target="_blank" href="https://www.vertex360.co/landing?utm={{site.slug}}">Vertex 360</a>. Vertex 360 is a platform
+                for content creation and curation on your site. Think of it as a Reddit sub that you host on your own domain. To learn more, visit
+                <a target="_blank" href="https://www.vertex360.co/landing?utm={{site.slug}}">vertex360.co</a>
+            </p>
+        </div>
+    </div>
+
+    {{#vertexUser}}{{/vertexUser}}
+    {{^vertexUser}}
+    <div id="btn-launch-your-site" class="bg-info f-btn text-center border-right p-t-15 p-b-15">
+        <a target="_blank" href="https://www.vertex360.co/landing?utm={{site.slug}}">
+            <p class="m-0 text-uppercase d-inline-block text-white">Launch Your Site <i class="fas fa-arrow-alt-circle-right ml-2 f-16"></i></p>
+        </a>
+    </div>
+    {{/vertexUser}}
+
+</div>

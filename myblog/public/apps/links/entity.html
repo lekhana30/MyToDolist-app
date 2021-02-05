@@ -1,0 +1,180 @@
+<div class="card">
+    <div class="card-body card2 pt-5 pb-0">
+        <span class="text-muted">{{ link.dateString }}</span>
+        <a target="_blank" href="{{link.url}}">
+            <h1 style="line-height:1.25;color:#4886ff" class="f-24 f-w-400 mb-1 mt-0">{{link.title}} <span class="f-16 ml-2"><i class="feather icon-external-link mr-1"></i>({{link.domain}})</span></h1>
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="m-t-0 post-content f-16">
+            {{link.preview}}
+        </div>
+        <a class="btn btn-info mt-3" target="_blank" href="{{link.url}}">Read Full Article</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <button id="btn-edit-reply" style="float:right;display:none" class="btn btn-info">Edit Your Reply</button>
+        <h3 class="mb-4">Initial Reaction</h3>
+        <div style="display:flex">
+            <div class="mr-2">
+                <img style="width:36px;border-radius:50%" src="{{{link.profile.image}}}=s88-c" />
+            </div>
+
+            <div style="flex:1;line-height:1.25">
+                <span class="text-dark">
+                    {{#link.profile.username}}
+                        {{link.profile.username}}
+                    {{/link.profile.username}}
+                    {{^link.profile.username}}
+                        Admin
+                    {{/link.profile.username}}
+                </span><br />
+                <span class="text-muted">{{ link.dateString }}</span>
+            </div>
+        </div>
+
+        <div id="link-reaction-text" class="mt-4 post-content">
+            {{{link.reaction}}}
+        </div>
+
+        <div id="edit-link-reaction" class="mt-4 post-content mb-4" style="display:none">
+            <textarea style="padding:8px;background:#f9f9f9" id="textarea-edit-link" rows="5" class="form-control"></textarea>
+            <div style="text-align:right">
+                <button id="btn-submit-updates" class="btn btn-info mt-3">Submit</button>                
+            </div>
+        </div>
+
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style mt-4 share-icons" style="width:fit-content !important;margin:auto">
+            {{#global.share.facebook}}
+            <a class="a2a_button_facebook mr-1"></a>
+            {{/global.share.facebook}}
+            
+            {{#global.share.twitter}}
+            <a class="a2a_button_twitter mr-1"></a>
+            {{/global.share.twitter}}
+
+            {{#global.share.linkedin}}
+            <a class="a2a_button_linkedin mr-1"></a>
+            {{/global.share.linkedin}}
+
+            {{#global.share.email}}
+            <a class="a2a_button_email mr-1"></a>
+            {{/global.share.email}}
+
+            {{#global.share.pinterest}}
+            <a class="a2a_button_pinterest mr-1"></a>
+            {{/global.share.pinterest}}
+
+            {{#global.share.reddit}}
+            <a class="a2a_button_reddit mr-1"></a>
+            {{/global.share.reddit}}
+        </div>
+
+        <hr />
+        <div class="text-center mt-4" id="widget-root"></div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        var data = null
+        var vertexUser = null
+        var link = null
+        var isEditing = false
+
+        var convertToHtml = function(str){
+            var find = "\n"
+            var re = new RegExp(find, 'g')
+            str = str.replace(re, '<br />')
+            return '<p>'+str+'</p>'
+        }
+
+        var convertToPlainText = function(html){
+            var re = new RegExp("<br />", 'g')
+            html = html.replace(re, "\n")
+
+            var re2 = new RegExp("<p>", 'g')
+            html = html.replace(re2, "")
+
+            var re3 = new RegExp("</p>", 'g')
+            html = html.replace(re3, "")
+
+            return html
+        }
+
+        var loadState = function(){
+            data = window.__PRELOADED__
+            vertexUser = data.vertexUser
+            link = data.entity
+
+            if (vertexUser == null)
+                return
+            
+            if (link == null)
+                return
+
+            if (vertexUser.id != link.profile.id)
+                return
+            
+            $('#btn-edit-reply').click(function(event){
+                if (event)
+                    event.preventDefault()
+                
+                if (isEditing==true){
+                    $('#link-reaction-text').css('display', '')
+                    $('#edit-link-reaction').css('display', 'none')
+                }
+                else {
+                    $('#textarea-edit-link').val(convertToPlainText(link.reaction))
+                    $('#link-reaction-text').css('display', 'none')
+                    $('#edit-link-reaction').css('display', '')
+                }
+
+                isEditing = !isEditing
+            })
+
+            $('#btn-submit-updates').click(function(event){
+                if (event)
+                    event.preventDefault()
+                
+                var text = $('#textarea-edit-link').val()
+                text = convertToHtml(text)
+                // console.log('submit updates: ' + text)
+
+                $.ajax({
+                    url: '/api/link/'+link.id,
+                    type: 'PUT',
+                    data: {reaction: text},
+                    success: function(response){
+                        // console.log('RESP: ' + JSON.stringify(response))
+                        if (response.confirmation != 'success'){
+                            alert(response.message)
+                            return
+                        }
+                        
+                        link = response.data
+                        $('#edit-link-reaction').css('display', 'none')
+                        $('#link-reaction-text').html(link.reaction)
+                        $('#link-reaction-text').css('display', '')
+                        isEditing = false
+                    },
+                    error: function(response){
+                        console.log('ERR: ' + JSON.stringify(response))
+                        alert(response.message)
+                    }
+                })
+            })
+
+            $('#btn-edit-reply').css('display', '')
+        }
+
+        setTimeout(function(){
+            loadState()
+            // console.log('LINK ENTITY PAGE: ' + JSON.stringify(data))
+
+        }, 100)
+
+    })()
+</script>

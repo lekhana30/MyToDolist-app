@@ -1,0 +1,22 @@
+<nav class="pcoded-navbar menupos-fixed menu-light pt-4">
+    <div class="navbar-wrapper content-main container-fluid">
+        <div class="navbar-content scroll-div" >
+            <ul class="nav pcoded-inner-navbar">
+                <li class="nav-item pcoded-menu-caption">
+                    <label>Navigation</label>
+                </li>
+
+                {{#sections}}
+                <li id="sidebar-{{id}}" class="sidebar-item nav-item">
+                    <a href="#" class="nav-link ">
+                        <span class="pcoded-micon"><i class="feather {{icon}}"></i></span>
+                        <span class="pcoded-mtext">{{name}}</span>
+                    </a>
+                </li>
+                {{/sections}}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- [ navigation menu ] end -->

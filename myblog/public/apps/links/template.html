@@ -1,0 +1,238 @@
+<div id="link-container" class="card">
+    <div class="card-body">
+        <div class="card-contain text-center pl-3 pr-3">
+            <div class="text-left">
+                <h4>Submit Link</h4>
+                <p>Copy &amp; paste a url below to submit a link to this feed:</p>
+            </div>
+            <div class="input-group mb-2">
+                <input id="input-thread-url" type="text" class="form-control" style="background:#f9f9f9;border:none" placeholder="Copy & Paste URL">
+            </div>
+            <div id="link-meta-container" style="display:none" class="mb-3">
+                <div style="flex:1">
+                    <input id="input-thread-title" type="text" class="w-100 mb-2" placeholder="Enter Title Here" style="border:none;padding:0px;font-size:1.1rem">
+                    <textarea id="input-thread-description" rows="4" class="w-100" placeholder="Enter Preview Text Here" style="border:none;padding:0px"></textarea>
+                </div>
+                <div id="preview-image-container" class="mb-3 mt-2 ml-3"></div>
+            </div>
+            <textarea id="input-link-reaction" rows="6" placeholder="Enter Your Reaction Here..." class="w-100 mt-1 mb-1" style="border:1px solid #ededed;padding:6px;background:#f9f9f9;resize:none;display:none"></textarea>
+            <input id="input-vtx-id" type="hidden">
+            <input id="input-vtx-schema" type="hidden">
+            <input id="input-vtx-site" type="hidden">
+
+            <div id="btn-submit-link-container" class="text-center">
+                <button id="btn-submit-link" style="display:none" class="btn btn-primary btn-block mb-2">Submit Link</button>
+            </div>
+            <div id="loading-indicator" style="text-align:center"></div>
+        </div>
+
+        <div class="table-responsive mt-4">
+            <table class="table invoice-detail-table">
+                <tbody id="links-table"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/template" id="tpl-links">
+    <tr>
+        <td>
+            <small class="text-muted"><% dateString %></small>
+            <h5 style="white-space:normal;line-height:1.5"><a target="_blank" href="<%{url}%>"><% title %></a></h5>
+            <div class="mt-3 mb-2 link-preview">
+                <div style="flex:1">
+                    <div class="mobile-link-image mb-3">
+                        <img class="mb-2" src="<%{image}%>" /><br />
+                    </div>
+
+                    <p class="m-0 mb-3"><% preview %></p>
+                    <a href="/link/<% slug %>">
+                        <span class="badge badge-light-info mr-1">COMMENTS</span>
+                    </a>
+                    <a href="/link/<% slug %>">
+                        <span class="badge badge-light-secondary"><% domain %></span>
+                    </a>
+                </div>
+                <div class="link-image ml-3">
+                    <img style="width:140px" src="<%{image}%>" />
+                </div>
+            </div>
+        </td>
+    </tr>
+</script>
+
+<script type="text/javascript">
+(function(){
+    var data = window.__PRELOADED__
+    var user = data.vertexUser
+    var links = data.links
+    var isFetching = false
+
+    var reloadUI = function(){
+        var linksHtml = ''
+        var tpl = $('#tpl-links').html() 
+
+        links.forEach(function(link){
+            linksHtml += Mustache.render(tpl, link)
+        })
+
+        $('#links-table').html(linksHtml)
+    }
+
+    var formattedDate = function(date){
+        var options = {year:'numeric', month:'long', day:'numeric'}
+        if (date == null)
+            date = new Date()
+
+        return date.toLocaleDateString('en-US', options) // Monday, May 6, 2019
+    }
+
+    var randomString = function(numRandomChars){
+        var randomStr = ''
+            var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            for (var i=0; i <numRandomChars; i++)
+                randomStr += possible.charAt(Math.floor(Math.random() * possible.length))
+
+        return randomStr
+    }
+
+    $('#input-thread-url').on('input', function(){
+        var url = $(this).val()
+        if (url.indexOf('http') == -1){
+            alert('Invalid URL. Copy & paste url from browser.')
+            return
+        }
+
+        $('#btn-submit-link').css('display', 'none')
+        $('#loading-indicator').html('<img style="max-width:80px" src="https://storage.turbo360.co/vertex360-cms-4hujkc/loader.gif" />')
+        isFetchingMeta = true
+        window.vertexLib.getRequest('/scrape', {url:url}, function(err, resp){
+            isFetchingMeta = false
+            $('#loading-indicator').html('')
+            if (err){
+                // console.log('ERR - ' + err)
+                alert(err.message)
+                return
+            }
+
+            if (resp.confirmation != 'success'){
+                console.log('ERR - ' + resp.message)
+                return
+            }
+
+            var meta = resp.data
+            console.log(JSON.stringify(meta))
+            // {title: '', description:'', image:'', url:''}
+            // {"title":"Daniel Jones has given Eli Manning no room to fail","url":"https://nypost.com/2019/08/23/daniel-jones-has-given-eli-manning-no-room-to-fail/","description":"We hold these truths to be self-evident: Eli Manning was not brought back to be a $23.2 million backup quarterback. You don’t draft a quarterback with the sixth pick to sit him. “Eli ‘s our starter…","image":"https://thenypost.files.wordpress.com/2019/08/djones.jpg?quality=90&strip=all&w=1200"}
+            $('#input-thread-description').val(meta.description)
+            $('#input-thread-title').val(meta.title)
+            $('#btn-submit-link').css('display', '')
+            $('#input-link-reaction').css('display', '')
+            $('#link-meta-container').css('display', 'flex')
+            if (meta.image)
+                $('#preview-image-container').html('<img id="thread-image" style="max-width:120px" src="'+meta.image+'" />')
+            else
+                $('#preview-image-container').css('display', 'none')
+            
+
+            // hidden fields:
+            if (meta['vtx:schema'])
+                $('#input-vtx-schema').val(meta['vtx:schema'])
+
+            if (meta['vtx:id'])
+                $('#input-vtx-id').val(meta['vtx:id'])
+
+            if (meta['vtx:site'])
+                $('#input-vtx-site').val(meta['vtx:site'])
+        })
+    })
+
+    $('#btn-submit-link').click(function(event){
+        if (user == null){
+            alert('Please login or register to submit.')
+            return
+        }
+
+        // check if this is a Vertex post, if so use the Vertex post ID
+        var id = ($('#input-vtx-id').val().length==0) ? randomString(10) : $('#input-vtx-id').val()
+        var schema = ($('#input-vtx-schema').val().length==0) ? null : $('#input-vtx-schema').val()
+
+        var url = $('#input-thread-url').val()
+        var domain = new URL(url)
+
+        var linkMeta = {
+            // slug: '', // TODO: check this this value is scraped from a Vertex post
+            title: $('#input-thread-title').val(),
+            image: $('#thread-image').attr('src'),
+            url: url,
+            domain: domain.hostname,
+            preview: $('#input-thread-description').val()
+        }
+
+        if (linkMeta.url.length == 0){
+            alert('Please enter a URL')
+            return
+        }
+
+        if (linkMeta.title.length == 0){
+            alert('Please enter a TITLE')
+            return
+        }
+
+        var siteId = ($('#input-vtx-site').val().length==0) ? '' : $('#input-vtx-site').val()
+
+        var link = {
+            site: siteId, // this gets parsed into full site details on create
+            slug: '',
+            title: linkMeta.title,
+            image: linkMeta.image,
+            url: linkMeta.url,
+            domain: linkMeta.domain,
+            preview: linkMeta.preview,
+            reaction: $('#input-link-reaction').val(),
+            profile: JSON.stringify({
+                id: user.id,
+                slug: user.slug,
+                username: user.username,
+                image: user.image
+            })
+        }
+
+        // console.log('SUBMIT LINK: ' + JSON.stringify(link))
+        $('#btn-submit-link-container').html("<img style='width:80px' src='https://storage.turbo360.co/vertex360-cms-4hujkc/loader.gif' />")
+        window.vertexLib.postRequest('/api/link', link, function(err, resp){
+            if (err){
+                $('#btn-submit-link-container').html('<button class="btn btn-primary btn-block mb-2">Submit Link</button>')
+                alert('Error - ' + err.message)
+                return
+            }
+
+            if (resp.confirmation != 'success'){
+                $('#btn-submit-link-container').html('<button class="btn btn-primary btn-block mb-2">Submit Link</button>')
+                alert('Error - ' + resp.message)
+                return
+            }
+
+            console.log('LINK CREATED: ' + JSON.stringify(resp.data))
+            window.location.href = '/link/'+resp.data.slug
+        })
+    })
+
+    if (links != null){
+        reloadUI()
+        return
+    }
+
+    $('#links-table').html('<div style="text-align:center"><img src="https://storage.turbo360.co/turbo-blog-ksq2wy/loading-spinner.gif" /></div>')
+    window.utils.getRequest('/api/link?limit=10', function(err, data){
+        if (err){
+            return
+        }
+
+        window.__PRELOADED__.links = data
+        links = data
+        // console.log('LINKS: ' + JSON.stringify(links))
+        reloadUI()
+    })
+})()
+</script>

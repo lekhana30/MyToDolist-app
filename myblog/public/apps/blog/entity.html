@@ -1,0 +1,61 @@
+<div class="card">
+    <div class="card-body card2 pt-5 pb-2">
+        <h1 style="line-height:1.25" class="f-24 f-w-400 mb-3">{{post.title}}</h1>
+        <div style="display:flex">
+            <div class="mr-2">
+                <a target="_blank" href="https://www.vertex360.co/profile/{{post.author.slug}}">
+                    <img style="width:36px;border-radius:50%" src="{{{post.author.image}}}=s88-c" />
+                </a>
+            </div>
+            <div style="flex:1;line-height:1.25">
+                <a target="_blank" href="https://www.vertex360.co/profile/{{post.author.slug}}">
+                    <span class="text-dark">
+                        {{#post.author.username}}
+                            {{post.author.username}}
+                        {{/post.author.username}}
+                        {{^post.author.username}}
+                            Admin
+                        {{/post.author.username}}
+                    </span>
+                </a>                                
+                <br />
+                <span class="text-muted">{{ post.dateString }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <img style="max-width:100%" src="{{{post.image}}}=s1024" />
+        <div class="m-t-25 post-content">
+            {{{post.text}}}
+        </div>
+
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style mt-4 share-icons" style="width:fit-content !important;margin:auto">
+            {{#global.share.facebook}}
+            <a class="a2a_button_facebook mr-1"></a>
+            {{/global.share.facebook}}
+            
+            {{#global.share.twitter}}
+            <a class="a2a_button_twitter mr-1"></a>
+            {{/global.share.twitter}}
+
+            {{#global.share.linkedin}}
+            <a class="a2a_button_linkedin mr-1"></a>
+            {{/global.share.linkedin}}
+
+            {{#global.share.email}}
+            <a class="a2a_button_email mr-1"></a>
+            {{/global.share.email}}
+
+            {{#global.share.pinterest}}
+            <a class="a2a_button_pinterest mr-1"></a>
+            {{/global.share.pinterest}}
+
+            {{#global.share.reddit}}
+            <a class="a2a_button_reddit mr-1"></a>
+            {{/global.share.reddit}}
+        </div>
+
+        <hr />
+        <div class="text-center mt-4" id="widget-root"></div>
+    </div>
+</div>

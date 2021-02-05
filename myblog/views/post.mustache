@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	{{>head}}
+    <title>{{post.title}}</title>
+    <meta name="description" content="{{post.preview}}" />
+
+    <meta property="og:title" content="{{post.title}}" />
+  	<meta property="og:type" content="article" />
+  	<meta property="og:url" content="{{{url}}}" />
+  	<meta property="og:image" content="{{{post.image}}}=s260-c" />
+  	<meta property="og:image:width" content="260px" />
+  	<meta property="og:image:height" content="260px" />
+  	<meta property="og:description" content="{{post.preview}}" />
+</head>
+
+<body>
+    {{>nav}}
+
+	<div class="content-main container-fluid ">
+        {{>sidebar}}
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-content pt-5">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">{{app.name}}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div id="main-content" class="col-sm-12 col-md-8 col-xl-8">
+                {{{mainContent}}}
+            </div>
+
+            <div class="col-sm-12 col-md-4 col-xl-4">
+                {{>about-card}}
+            </div>
+
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+    </div>
+
+	{{>scripts}}
+    <script async src="https://static.addtoany.com/menu/page.js"></script>
+    <script type="text/javascript" src="https://cdn.turbo360-dev.com/templates/base-template-tnzakf/dist/js/pages/post.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!-- [ navigation menu ] start -->
+<!-- [ Header ] start -->
+<header class="navbar pcoded-header navbar-expand-lg navbar-light headerpos-fixed header-dark">
+    <div class="content-main container-fluid ">
+        <div class="m-header">
+            <a class="mobile-menu" id="mobile-collapse" href="#"><span></span></a>
+            <a href="/" class="b-brand">
+                <img style="width:140px" src="{{{global.img_nav}}}=s280" alt="{{global.title}}" class="logo">
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li>
+                    {{#vertexUser}}
+                    <a target="_blank" href="https://www.vertex360.co/me" class="btn btn-info">
+                        My Account
+                        <i class="fas fa-arrow-alt-circle-right ml-2 f-16"></i>
+                    </a>
+                    {{/vertexUser}}
+                    {{^vertexUser}}
+                    <a target="_blank" href="https://www.vertex360.co/landing?utm={{site.slug}}" class="btn btn-info">
+                        Launch Your Site
+                        <i class="fas fa-arrow-alt-circle-right ml-2 f-16"></i>
+                    </a>
+                    {{/vertexUser}}
+                </li>
+            </ul>
+        </div>
+
+
+    </div>
+</header>
